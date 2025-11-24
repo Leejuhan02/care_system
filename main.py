@@ -5,6 +5,13 @@ import sys
 from src.hardware import ButtonReader, Speaker
 from src.processors import VideoProcessor, AudioProcessor
 from src.notifiers import ConsoleNotifier
+# main.py
+import time
+import multiprocessing
+import sys
+from src.hardware import ButtonReader, Speaker
+from src.processors import VideoProcessor, AudioProcessor
+from src.notifiers import ConsoleNotifier
 from src.states import Context
 
 def main():
