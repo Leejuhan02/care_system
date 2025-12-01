@@ -236,11 +236,9 @@ class VideoProcessor(multiprocessing.Process):
         # RGB로 변환 (OpenCV는 BGR 사용)
         rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
         
-        # 정규화 (0~1 범위로)
-        normalized = rgb.astype(np.float32) / 255.0
         
         # 배치 차원 추가
-        input_data = np.expand_dims(normalized, axis=0)
+        input_data = np.expand_dims(rgb,axis=0).astype(np.uint8)
         
         return input_data
 
@@ -352,7 +350,9 @@ class VideoProcessor(multiprocessing.Process):
                         right_hip = keypoints[12]
                         print(f"[Video] Frame {frame_count}: 유효한 관절 {valid_joints}/17, "
                               f"코({nose[2]:.2f}), 엉덩이({left_hip[2]:.2f}, {right_hip[2]:.2f})")
-                    
+                        aspect_ratio = fall_analyzer.calculate_body_aspect_ratio(keypoints) 
+                        head_diff = fall_analyzer.calculate_head_position(keypoints) 
+                         
                 except Exception as e:
                     print(f"[Video] 추론 오류: {e}")
                     import traceback

@@ -5,13 +5,6 @@ import sys
 from src.hardware import ButtonReader, Speaker
 from src.processors import VideoProcessor, AudioProcessor
 from src.notifiers import ConsoleNotifier
-# main.py
-import time
-import multiprocessing
-import sys
-from src.hardware import ButtonReader, Speaker
-from src.processors import VideoProcessor, AudioProcessor
-from src.notifiers import ConsoleNotifier
 from src.states import Context
 
 def main():
@@ -48,7 +41,10 @@ def main():
         audio_proc.start()
         
         # 버튼 감시 시작
-        button.start()
+        if button:
+            button.start()
+        else:
+            print("button false")
 
         print("[Main] 시스템 가동 시작. (Ctrl+C로 종료)")
 

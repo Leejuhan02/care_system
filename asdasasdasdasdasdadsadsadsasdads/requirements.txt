@@ -1,0 +1,16 @@
+
+# Core
+numpy
+sounddevice
+gpiod
+
+# OpenCV: if you need a GUI (`--display`) install `opencv-python`; for headless use `opencv-python-headless`.
+# On Raspberry Pi with X/display, `opencv-python` is recommended for visualization.
+opencv-python
+
+# TFLite runtime: platform-specific wheel required for Raspberry Pi 5 + Python 3.11 (aarch64/cp311)
+# Install a matching wheel manually, e.g.:
+# pip install tflite-runtime-<version>-cp311-cp311-linux_aarch64.whl
+
+# If you cannot get a matching tflite-runtime wheel, consider installing full TensorFlow (heavy):
+# tensorflow

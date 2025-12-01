@@ -16,6 +16,7 @@ class ButtonReader:
         self.queue = event_queue
         self.pin = config.BUTTON_PIN
         self.running = False
+        self.is_ready = False
         self.chip = None
         self.line = None
         
@@ -29,11 +30,13 @@ class ButtonReader:
                 type=gpiod.LINE_REQ_EV_FALLING_EDGE,
                 flags=gpiod.LINE_REQ_FLAG_BIAS_PULL_UP
             )
+            self.is_ready = True
             print(f"[Hardware] GPIO 초기화 완료 (Pin {self.pin})")
         except Exception as e:
             print(f"[Hardware] GPIO 초기화 오류: {e}")
             self.line = None
             self.chip = None
+            self.is_ready = False
 
     def start(self):
         """버튼 감시 스레드 시작"""
