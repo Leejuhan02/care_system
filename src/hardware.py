@@ -21,6 +21,13 @@ class ButtonReader:
         self.line = None
         
         # [RPi 5 호환] gpiod 칩 초기화
+        # 로그에 어떤 config가 로드되었는지 표시
+        try:
+            print(f"[Hardware] using config file: {config.__file__}")
+        except Exception:
+            pass
+
+        # 기본 시도: 설정된 칩 이름으로 열기
         try:
             self.chip = gpiod.Chip(config.GPIO_CHIP)
             self.line = self.chip.get_line(self.pin)
@@ -31,12 +38,40 @@ class ButtonReader:
                 flags=gpiod.LINE_REQ_FLAG_BIAS_PULL_UP
             )
             self.is_ready = True
-            print(f"[Hardware] GPIO 초기화 완료 (Pin {self.pin})")
+            print(f"[Hardware] GPIO 초기화 완료 (chip={config.GPIO_CHIP} pin={self.pin})")
         except Exception as e:
-            print(f"[Hardware] GPIO 초기화 오류: {e}")
-            self.line = None
-            self.chip = None
-            self.is_ready = False
+            print(f"[Hardware] 기본 GPIO 칩('{getattr(config, 'GPIO_CHIP', None)}') 열기 실패: {e}")
+            # 폴백: 시스템의 모든 gpiochip을 검사해서 해당 라인을 찾음
+            try:
+                found = False
+                for chip in gpiod.ChipIter():
+                    try:
+                        line = chip.get_line(self.pin)
+                        # 요청까지 시도하여 실제 사용할 수 있는지 확인
+                        line.request(
+                            consumer="care_system",
+                            type=gpiod.LINE_REQ_EV_FALLING_EDGE,
+                            flags=gpiod.LINE_REQ_FLAG_BIAS_PULL_UP
+                        )
+                        self.chip = chip
+                        self.line = line
+                        self.is_ready = True
+                        print(f"[Hardware] 자동 탐지 GPIO 칩 {chip.name} 사용 (pin={self.pin})")
+                        found = True
+                        break
+                    except Exception:
+                        # 이 칩에서 해당 라인을 사용 불가하면 다음 칩 검사
+                        continue
+                if not found:
+                    print(f"[Hardware] 자동 탐지 실패: 핀 {self.pin}을 사용할 수 있는 칩을 찾을 수 없습니다.")
+                    self.line = None
+                    self.chip = None
+                    self.is_ready = False
+            except Exception as e2:
+                print(f"[Hardware] ChipIter 검사 중 오류: {e2}")
+                self.line = None
+                self.chip = None
+                self.is_ready = False
 
     def start(self):
         """버튼 감시 스레드 시작"""
@@ -103,6 +138,7 @@ class Speaker:
             # 3회 반복 재생
             for i in range(3):
                 try:
+                    print("gggggggggggg")
                     sd.play(wave, fs)
                     sd.wait()
                     if i < 2:  # 마지막이 아니면 딜레이

@@ -126,7 +126,7 @@ class AlertState(State):
         print(">> [ALERT] 응답 대기 중...")
         self.context.speaker.play_alert()
         # [선택] 사용자에게 알림 전송 (실제 구현 시 활성화)
-        # self.context.notify_all("낙상이 감지되었습니다. 괜찮으시면 버튼을 눌러주세요.")
+        self.context.notify_all("낙상이 감지되었습니다. 괜찮으시면 버튼을 눌러주세요.")
 
     def handle_event(self, event):
         """이벤트 처리"""
@@ -165,7 +165,7 @@ class AwayState(State):
         """
         if time.time() - self.start_time > config.AWAY_TIMEOUT:
             self.context.change_state(EmergencyState, "장기 외출 미복귀")
-
+            
 
 class EmergencyState(State):
     """
